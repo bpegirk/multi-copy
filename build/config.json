@@ -1,0 +1,8 @@
+{
+  "maxThreads": 5,
+  "maxComputers": 50,
+  "backupFolder": "d:\\temp\\aaa",
+  "sourceFolderTemplate": "d:\\test\\%[1]v",
+  "nameTemplate": "CAD-%[1]v",
+  "datetimeFormat": "01-02-150405"
+}
