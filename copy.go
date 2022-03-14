@@ -14,34 +14,36 @@ import (
 var config = Configuration{}
 
 type Configuration struct {
-	MaxThreads           int    `json:"maxThreads"`
-	MaxComputers         int    `json:"maxComputers"`
-	BackupFolder         string `json:"backupFolder"`
-	SourceFolderTemplate string `json:"sourceFolderTemplate"`
-	NameTemplate         string `json:"nameTemplate"`
-	DatetimeFormat       string `json:"datetimeFormat"`
+	MaxThreads           int      `json:"maxThreads"`
+	Computers            []string `json:"computers"`
+	Users                []string `json:"users"`
+	BackupFolder         string   `json:"backupFolder"`
+	SourceFolderTemplate string   `json:"sourceFolderTemplate"`
+	NameTemplate         string   `json:"nameTemplate"`
+	UserTemplate         string   `json:"userTemplate"`
+	DatetimeFormat       string   `json:"datetimeFormat"`
 }
 
 func main() {
 
 	initConfig()
 	// prepare
-	//sourceFolder := "d:\\test\\%[1]v"
-	//sourceFolder := "\\\\fs\\students\\events\\WSR2022\\CAD\\%[1]v"
-	//sourceFolder := "\\\\%[1]v\\c$\\Users\\%[1]v\\Desktop"
+	t := time.Now()
+	bFolder := config.BackupFolder + "\\" + t.Format(config.DatetimeFormat)
+	os.Mkdir(bFolder, 0777)
 
 	name := [100]string{}
+	user := [100]string{}
 	folder := [100]string{}
-	for i := 1; i <= config.MaxComputers; i++ {
-		name[i-1] = fmt.Sprintf(config.NameTemplate, fmt.Sprintf("%02d", i))
-		//name[i-1] = "cad-" + fmt.Sprintf("%02d", i)
-		folder[i-1] = fmt.Sprintf(config.SourceFolderTemplate, name[i-1])
-
+	for i, s := range config.Computers {
+		name[i] = s
+		user[i] = config.Users[i]
+		folder[i] = fmt.Sprintf(config.SourceFolderTemplate, name[i], user[i])
 	}
 
 	// start threads
 
-	var ch = make(chan int, config.MaxComputers) // This number 50 can be anything as long as it's larger than xthreads
+	var ch = make(chan int, len(config.Users)) // This number 50 can be anything as long as it's larger than xthreads
 	var wg sync.WaitGroup
 
 	// This starts xthreads number of goroutines that wait for something to do
@@ -54,13 +56,13 @@ func main() {
 					wg.Done()
 					return
 				}
-				arch(name[idx], folder[idx], config.BackupFolder)
+				arch(user[idx], folder[idx], bFolder)
 			}
 		}()
 	}
 
 	// Now the jobs can be added to the channel, which is used as a queue
-	for i := 0; i < config.MaxComputers; i++ {
+	for i := 0; i < len(config.Users); i++ {
 		ch <- i // add i to the queue
 	}
 
@@ -96,13 +98,14 @@ func initConfig() {
 }
 
 func arch(name string, path string, backupFolder string) {
-	fmt.Println("---Start work with " + name + " Folder " + path)
-	t := time.Now()
-	out, err := exec.Command("7z", "a", "-mx0", backupFolder+"\\"+name+"_"+t.Format(config.DatetimeFormat)+".7z", path).Output()
-	fmt.Println("---Done with " + name)
+
+	out, err := exec.Command("7z", "a", "-mx0", backupFolder+"\\"+name+".7z", path).Output()
+
 	if err != nil {
+		fmt.Println("---ERROR work with " + name + " Folder " + path)
 		log.Fatal(err)
 	} else {
 		fmt.Printf("%s", out)
+		fmt.Println("---Done work with " + name + " Folder " + path)
 	}
 }

@@ -1,8 +1,36 @@
 {
   "maxThreads": 5,
-  "maxComputers": 50,
+  "computers": [
+    "cad-37",
+    "cad-38",
+    "cad-39",
+    "cad-40",
+    "cad-41",
+    "cad-42",
+    "cad-43",
+    "cad-44",
+    "cad-45",
+    "cad-46",
+    "cad-47",
+    "cad-48"
+  ],
+  "users": [
+    "junk01",
+    "junk02",
+    "junk05",
+    "junk06",
+    "junk03",
+    "junk04",
+    "junk07",
+    "junk08",
+    "junk10",
+    "junk09",
+    "junk11",
+    "junk12"
+  ],
   "backupFolder": "d:\\temp\\aaa",
-  "sourceFolderTemplate": "\\\\fs\\students\\events\\WSR2022\\CAD\\%[1]v",
-  "nameTemplate": "CAD%[1]v",
+  "sourceFolderTemplate": "\\\\%[1]v\\c$\\Users\\%[2]v\\Desktop",
+  "nameTemplate": "CAD-%[1]v",
+  "userTemplate": "CAD%[1]v",
   "datetimeFormat": "01-02-150405"
 }
